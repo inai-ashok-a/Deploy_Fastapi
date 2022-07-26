@@ -6,7 +6,7 @@ from models.users import users
 
 app=FastAPI();    #creating object for FastAPI()
 
-@app.post("/")
+@app.get('/')
 async def root():
     return {"message": "Hello World"}
 
