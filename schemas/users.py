@@ -7,9 +7,4 @@ class User(BaseModel):
     age:int
     email:str
 
-def check_email(s):
-   pat = "^[a-z0-9-_.]+@[a-z0-9]+\.[a-z]{1,3}$"
-   if re.match(pat,s):
-      return True
-   return False
 

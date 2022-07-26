@@ -1,6 +1,7 @@
 from fastapi import FastAPI
+from email_validator import  validate_email, EmailNotValidError
 from config.db import con
-from schemas.users import User,check_email
+from schemas.users import User
 from models.users import users
 
 
@@ -21,8 +22,14 @@ async def store(obj:User):
        data=con.execute(users.select().where (users.c.email == obj.email)).fetchall()
        #condition to check whether the email present in mysql already
 
+       val_email = obj.email
 
-       if check_email(obj.email) and (data.__len__()==0): #check_email is a function used to validate email
+       try:
+           val_email=validate_email(val_email).email
+       except EmailNotValidError as e:
+           return "Please enter valid Email! :("
+
+       if  (data.__len__()==0): #check_email is a function used to validate email
         data=con.execute(users.insert().values(
         name=obj.name,
         age=obj.age,                        #query to insert data in the database
@@ -30,8 +37,6 @@ async def store(obj:User):
         ))
         data=con.execute(users.select()).fetchall()
         return data
-       elif not check_email(obj.email):
-           return "Please enter valid Email! :("
        else:
            return "Email already in use!!! :("
 
@@ -41,7 +46,15 @@ async def func_to_update(id:int,obj:User):   #asynchronous function to update th
 
     data = con.execute(users.select().where(users.c.email == obj.email)).fetchall() #refer the above statement
 
-    if check_email(obj.email) and (data.__len__() == 0):
+    val_email = obj.email
+
+    try:
+        val_email = validate_email(val_email).email
+    except EmailNotValidError as e:
+        return "Please enter valid Email! :("
+
+
+    if (data.__len__() == 0):
 
         data=con.execute(users.update().values(
         name=obj.name,
@@ -51,8 +64,6 @@ async def func_to_update(id:int,obj:User):   #asynchronous function to update th
         data = con.execute(users.select()).fetchall()
         return data
 
-    elif not check_email(obj.email):
-        return "Please enter valid Email! :("
     else :
         return "Email in use!!"
 
